@@ -1,0 +1,73 @@
+---
+apiVersion: app.ibm.com/v1alpha1
+kind: Subscription
+metadata:
+  name: app-phpmyadmin
+  namespace: app-project
+  labels:
+    app: app-phpmyadmin
+    team: team1
+    catagory: webapp
+spec:
+  channel: app-entitlement/kubernetes-charts
+  name: phpmyadmin       # The name of the helm chart from the repo
+  packageFilter:
+    version: 4.3.x
+  placement:
+    # clusterSelector:
+    #   matchLabels:
+    #     cluster: managed-app-cluster
+    #     environment: PROD
+    placementRef:
+      name: app-phpmyadmin-prod
+      kind: PlacementRule
+      group: app.ibm.com
+  overrides:
+  - clusterName: "/"
+    clusterOverrides:
+    - path: "metadata.namespace"
+      value: default
+  packageOverrides:
+  - packageName: phpmyadmin-prod
+    packageOverrides:
+    - path: spec.values
+      value: |
+        ingress:
+          enabled: false
+
+---
+apiVersion: app.k8s.io/v1beta1
+kind: Application
+metadata:
+  name: app-phpmyadmin
+  namespace: app-project
+  labels:
+    app: app-phpmyadmin
+    team: team1
+    catagory: webapp
+spec:
+  selector:
+    matchLabels:
+      app: app-phpmyadmin
+      team: team1
+      catagory: webapp
+  componentKinds:
+  - group: app.ibm.com/v1alpha1
+    kind: Subscription
+
+---
+apiVersion: app.ibm.com/v1alpha1
+kind: PlacementRule
+metadata:
+  name: app-phpmyadmin-prod
+  namespace: app-project
+  labels:
+    app: app-phpmyadmin
+    team: team1
+    catagory: webapp
+spec:
+  clusterReplicas: 1
+  clusterLabels:
+    matchLabels:
+      cluster: managed-app-cluster
+      environment: PROD

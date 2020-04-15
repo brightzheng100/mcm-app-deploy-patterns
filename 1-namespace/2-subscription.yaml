@@ -1,0 +1,66 @@
+---
+apiVersion: app.ibm.com/v1alpha1
+kind: Subscription
+metadata:
+  name: app-modresort
+  namespace: app-project
+  labels:
+    app: app-modresort
+    team: team1
+    catagory: webapp
+spec:
+  channel: app-entitlement/app-modresort
+  name: ""
+  packageFilter:
+    labelSelector:  # to match target deployables or a subset of a deployables
+      matchLabels:
+        app: app-modresort
+        team: team1
+        catagory: webapp
+  placement:
+    placementRef:
+      name: app-modresort-prod
+      kind: PlacementRule
+      group: app.ibm.com
+  overrides:
+  - clusterName: "/"
+    clusterOverrides:
+    - path: "metadata.namespace"
+      value: default
+
+---
+apiVersion: app.k8s.io/v1beta1
+kind: Application
+metadata:
+  name: app-modresort
+  namespace: app-project
+  labels:
+    app: app-modresort
+    team: team1
+    catagory: webapp
+spec:
+  selector:
+    matchLabels:
+      app: app-modresort
+      team: team1
+      catagory: webapp
+  componentKinds:
+  - group: app.ibm.com
+    kind: Subscription
+
+---
+apiVersion: app.ibm.com/v1alpha1
+kind: PlacementRule
+metadata:
+  name: app-modresort-prod
+  namespace: app-project
+  labels:
+    app: app-modresort
+    team: team1
+    catagory: webapp
+spec:
+  clusterReplicas: 1
+  clusterLabels:
+    matchLabels:
+      cluster: managed-app-cluster
+      environment: PROD

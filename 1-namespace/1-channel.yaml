@@ -1,0 +1,95 @@
+---
+apiVersion: app.ibm.com/v1alpha1
+kind: Channel
+metadata:
+  name: app-modresort
+  namespace: app-entitlement
+  labels:
+    app: app-modresort
+    team: team1
+    catagory: webapp
+spec:
+  type: Namespace
+  pathname: app-entitlement
+
+---
+apiVersion: app.ibm.com/v1alpha1
+kind: Deployable
+metadata:
+  name: app-modresort-deployment
+  namespace: app-entitlement
+  annotations:
+    app.ibm.com/is-local-deployable: "false"
+  labels:
+    app: app-modresort
+    team: team1
+    catagory: webapp
+spec:
+  template:
+    kind: Deployment
+    apiVersion: apps/v1
+    metadata:
+      name: app-modresort-deployment
+      labels:
+        app: app-modresort
+        release: mcm-app-management-patterns
+        tier: frontend
+    spec:
+      selector:
+        matchLabels:
+          app: app-modresort
+          release: mcm-app-management-patterns
+          tier: frontend
+      replicas: 1
+      template:
+        metadata:
+          labels:
+            app: app-modresort
+            release: mcm-app-management-patterns
+            tier: frontend
+        spec:
+          containers:
+            - name: frontend
+              image: "kpostreich/modresort:1.0"
+              imagePullPolicy: Always
+              ports:
+                - containerPort: 9080
+              env:
+              - name: GET_HOSTS_FROM
+                value: dns
+              - name: WLP_LOGGING_CONSOLE_FORMAT
+                value: json
+              - name: WLP_LOGGING_CONSOLE_LOGLEVEL
+                value: info
+              - name: WLP_LOGGING_CONSOLE_SOURCE
+                value: message,trace,accessLog,ffdc
+
+---
+apiVersion: app.ibm.com/v1alpha1
+kind: Deployable
+metadata:
+  name: app-modresort-service
+  namespace: app-entitlement
+  annotations:
+    app.ibm.com/is-local-deployable: "false"
+  labels:
+    app: app-modresort
+    team: team1
+    catagory: webapp
+spec:
+  template:
+    kind: Service
+    apiVersion: v1
+    metadata:
+      name: app-modresort-service
+      labels:
+        app: app-modresort
+        release: mcm-app-management-patterns
+        tier: frontend
+    spec:
+      ports:
+      - port: 9080
+      selector:
+        app: app-modresort
+        release: mcm-app-management-patterns
+        tier: frontend

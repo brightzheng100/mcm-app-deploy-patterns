@@ -1,0 +1,67 @@
+---
+apiVersion: app.ibm.com/v1alpha1
+kind: Subscription
+metadata:
+  name: app-nginx
+  namespace: app-project
+  labels:
+    app: app-nginx
+    team: team1
+    catagory: webapp
+spec:
+  channel: app-entitlement/object-bucket
+  name: ""
+  placement:
+    # clusterSelector:
+    #   matchLabels:
+    #     cluster: managed-app-cluster
+    #     environment: PROD
+    placementRef:
+      name: app-nginx-prod
+      kind: PlacementRule
+      group: app.ibm.com
+  overrides:
+  - clusterName: "/"
+    clusterOverrides:
+    - path: "metadata.namespace"
+      value: default
+  # packageOverrides:
+  # - packageName: nginx-prod
+  #   packageOverrides: []
+
+---
+apiVersion: app.k8s.io/v1beta1
+kind: Application
+metadata:
+  name: app-nginx
+  namespace: app-project
+  labels:
+    app: app-nginx
+    team: team1
+    catagory: webapp
+spec:
+  selector:
+    matchLabels:
+      app: app-nginx
+      team: team1
+      catagory: webapp
+  componentKinds:
+  - group: app.ibm.com/v1alpha1
+    kind: Subscription
+
+---
+apiVersion: app.ibm.com/v1alpha1
+kind: PlacementRule
+metadata:
+  name: app-nginx-prod
+  namespace: app-project
+  labels:
+    app: app-nginx
+    team: team1
+    catagory: webapp
+spec:
+  clusterReplicas: 1
+  clusterLabels:
+    matchLabels:
+      cluster: managed-app-cluster
+      environment: PROD

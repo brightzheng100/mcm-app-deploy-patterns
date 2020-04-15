@@ -1,0 +1,20 @@
+---
+apiVersion: securityenforcement.admission.cloud.ibm.com/v1beta1
+kind: ImagePolicy
+metadata:
+  name: app-image-policy
+  namespace: app-entitlement
+spec:
+  repositories:
+  - name: "icr.io/*"
+    policy:
+      va:
+        enabled: false
+  - name: "docker.io/*"
+    policy:
+      va:
+        enabled: false
+  - name: "k8s.gcr.io/*"
+    policy:
+      va:
+        enabled: false

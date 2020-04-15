@@ -1,0 +1,15 @@
+---
+apiVersion: app.ibm.com/v1alpha1
+kind: Channel
+metadata:
+  name: object-bucket
+  namespace: app-entitlement
+  labels:
+    app: object-bucket
+    team: team1
+    catagory: webapp
+spec:
+  type: ObjectBucket
+  pathname: https://s3.au-syd.cloud-object-storage.appdomain.cloud/bucket-for-test/
+  secretRef:
+    name: object-bucket-secret

@@ -1,0 +1,13 @@
+---
+apiVersion: app.ibm.com/v1alpha1
+kind: Channel
+metadata:
+  name: kubernetes-charts
+  namespace: app-entitlement
+  labels:
+    app: kubernetes-charts
+    team: team1
+    catagory: webapp
+spec:
+  type: HelmRepo
+  pathname: https://kubernetes-charts.storage.googleapis.com/
