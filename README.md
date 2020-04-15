@@ -1,4 +1,4 @@
-# The App Management Patterns in IBM Cloud Pak for Multicloud Management
+# Some Typical App Deploy Patterns in IBM Cloud Pak for Multicloud Management
 
 ## Concepts
 
@@ -41,13 +41,13 @@ imagepolicy.securityenforcement.admission.cloud.ibm.com/app-image-policy created
 ```
 
 
-## App Management Patterns
+## The Typical App Deploy Patterns
 
 ### Pattern #1: Namespace
 
 #### Goal
 
-The goal of this demo is to deploy a ModResort web-app to the managed cluster(s).
+The goal of this demo is to deploy a `ModResort` web-app to the managed cluster(s) by using explicit `Deployable`s in namespace.
 
 #### Channel
 
@@ -114,7 +114,7 @@ app-modresort-deployment-6b9d78cc7c-l5cf2   1/1     Running   0          58s
 
 The goal of this demo is to deploy a Helm Chart from a Helm Repo to the managed cluster(s).
 
-I provide two examples here:
+There are two examples:
 1. The Channel points to "offical" [Kubernetes Charts repo](https://kubernetes-charts.storage.googleapis.com/) and Subscription looks for `phpmyadmin` Chart as target to deploy;
 2. Another Channel points to a [custom Chart Repo](https://github.com/IBM/helm101) and Subscription looks for `guestbook` Chart as target to deploy.
 
@@ -180,7 +180,7 @@ phpmyadmin-79c9b6f7bd-6nhbf                 1/1     Running   0          5m14s
 
 #### Goal
 
-The goal of demo is to use a S3 Bucket as the Channel and deploy Nginx to the Managed Cluster(s).
+The goal of demo is to use a S3 Bucket as the Channel and deploy `Nginx` app to the Managed Cluster(s).
 
 > Note: This demo uses [IBM Cloud Object Storage](https://www.ibm.com/sg-en/cloud/object-storage) service but any s3-compliant services should work.
 
