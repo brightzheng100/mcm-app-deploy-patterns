@@ -10,6 +10,6 @@ metadata:
     catagory: webapp
 spec:
   type: ObjectBucket
-  pathname: https://s3.au-syd.cloud-object-storage.appdomain.cloud/bucket-for-test/
+  pathname: "<EXPOSED MINIO URL>"
   secretRef:
     name: object-bucket-secret

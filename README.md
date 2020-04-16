@@ -180,25 +180,40 @@ phpmyadmin-79c9b6f7bd-6nhbf                 1/1     Running   0          5m14s
 
 #### Goal
 
-The goal of demo is to use a S3 Bucket as the Channel and deploy `Nginx` app to the Managed Cluster(s).
+The goal of this demo is to use a S3 Bucket as the Channel and deploy `Nginx` app to the Managed Cluster(s).
 
-> Note: This demo uses [IBM Cloud Object Storage](https://www.ibm.com/sg-en/cloud/object-storage) service but any s3-compliant services should work.
+#### Prerequisites
+
+1. S3-compliant server is accessible;
+2. A bucket is created with deployable Kubernetes objects copied inside.
+
+> Note: Please refer to [Annex -> Setup MinIO](#setup-minio) for a quick guide for MinIO.
 
 #### Channel
 
 In Hub Cluster:
 
+> Note: change the 
+
 ```sh
 $ oc create secret generic object-bucket-secret \
-    --from-literal=access_key_id="" \
-    --from-literal=secret_access_key=""
-$ oc apply -f 3-object-bucket/1-channel.yaml
+    --from-literal=AccessKeyID='<THE ACCESSKEY>' \          # CHANGE ME!!
+    --from-literal=SecretAccessKey='<THE SECRETKEY>'        # CHANGE ME!!
+
+$ MINIO_URL='http:\/\/your.minio.url\/bucket-name'          # CHANGE ME!!
+$ cat 3-object-bucket/1-channel.yaml | \
+    sed "s/<EXPOSED MINIO URL>/$MINIO_URL/g" | \
+    oc apply -f -
 ```
+
+> Note: 
+> 1. The MINIO_URL pattern must be `<HTTP/HTTPS>://<URI>/<BUCKET>`,for example: http://my-minio.example.com/my-bucket;
+> 2. As here we're using `sed` to replace the content, we have to escape the special char `\`.
 
 > OUTPUT:
 
 ```
-channel.app.ibm.com/minio-bucket created
+channel.app.ibm.com/object-bucket created
 ```
 
 #### Subscription
@@ -219,8 +234,97 @@ placementrule.app.ibm.com/app-nginx-prod created
 
 #### Outcome
 
-TODO
+In Hub Cluster:
+
+```sh
+$ oc get appsub,application,placementrule -l app=app-nginx -n app-project
+NAME                                 STATUS       AGE
+subscription.app.ibm.com/app-nginx   Propagated   4m42s
+
+NAME                               AGE
+application.app.k8s.io/app-nginx   4m42s
+
+NAME                                       AGE
+placementrule.app.ibm.com/app-nginx-prod   4m41s
+```
+
+In Managed Cluster:
+
+```sh
+$ kubectl get pod -n default
+kubectl get deploy,pod -n default
+NAME                          READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.extensions/nginx   1/1     1            1           2m3s
+
+NAME                         READY   STATUS    RESTARTS   AGE
+pod/nginx-78646cb555-cb6m8   1/1     Running   0          2m3s
+➜  argoCD kubectl get deploy,pod -n default
+NAME                          READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.extensions/nginx   1/1     1            1           2m57s
+
+NAME                         READY   STATUS    RESTARTS   AGE
+pod/nginx-78646cb555-cb6m8   1/1     Running   0          2m57s
+```
 
 ### Pattern #4: GitHub Repo
 
 TODO
+
+## Annex
+
+### Setup MinIO
+
+This is a very simple guide about how to setup MinIO server in OpenShift by using Helm Chart to support Pattern #3.
+
+You may refer to the official docs [here](https://github.com/helm/charts/tree/master/stable/minio) for more details.
+
+```sh
+$ MINIO_NANESPACE=app-entitlement           # CHANGE ME!!
+$ MINIO_HELM_CHART_NAME=my-minio            # CHANGE ME!!
+
+$ oc create sa $MINIO_HELM_CHART_NAME
+
+# To grant permission for the sa MinIO uses
+$ oc adm policy add-scc-to-user anyuid system:serviceaccount:$MINIO_NANESPACE:my-minio
+# This might be optional if my PR (https://github.com/helm/charts/pull/21907) is accepted
+$ oc adm policy add-scc-to-user anyuid system:serviceaccount:$MINIO_NANESPACE:default
+
+$ helm install --name $MINIO_HELM_CHART_NAME stable/minio --tls \
+    --set persistence.enabled=false \
+    --set serviceAccount.create=false \
+    --set serviceAccount.name=$MINIO_HELM_CHART_NAME \
+    --set "buckets[0].name=my-bucket" \
+    --set "buckets[0].policy=none"
+
+$ oc expose service/my-minio
+$ oc get routes
+NAME       HOST/PORT                                                                                                      PATH   SERVICES   PORT   TERMINATION   WILDCARD
+my-minio   <EXPOSED MINIO URL>          my-minio   http                 None
+```
+
+> Notes:
+
+1. Take note of the `accessKey` and `secretKey` generated. If you didn't set that, there has already one pair by default -- assuming we're going to use the default key pair for simplicity:
+
+```
+accessKey: "AKIAIOSFODNN7EXAMPLE"
+secretKey: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+```
+
+2. Take note of the `<EXPOSED MINIO URL>` for further configuration in `Channel`.
+
+
+Lastly, we need to copy over the manifest files into the `my-bucket`.
+
+You may do it through UI, or CLI as blow:
+
+```sh
+$ mc config host add my-minio http://<EXPOSED MINIO URL> AKIAIOSFODNN7EXAMPLE wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+
+$ mc cp 3-object-bucket/objects-in-bucket/deploy.yaml my-minio/my-bucket
+$ mc cp 3-object-bucket/objects-in-bucket/service.yaml my-minio/my-bucket
+
+$ mc ls my-minio/my-bucket
+[2020-04-16 11:35:01 +08]    339B deploy.yaml
+[2020-04-16 11:35:46 +08]    169B service.yaml
+```
