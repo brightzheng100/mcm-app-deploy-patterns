@@ -40,8 +40,17 @@ namespace/app-project created
 imagepolicy.securityenforcement.admission.cloud.ibm.com/app-image-policy created
 ```
 
-
 ## The Typical App Deploy Patterns
+
+There are 4 major app deploy patterns by using 4 different `Channel`s:
+
+| Pattern # | Channel Type | Description | Refer To  |
+| --- | --- | --- | --- |
+| 1 | Namespace | By using `Namespace` type, we can simply wrap the native Kubernetes objects as `Deployable`s to be deployed and managed by MCM | [Pattern #1](#pattern-1-namespace)  |
+| 2 | HelmRepo | `HelmRepo` might be more common so we can point the `Channel` to a particular Helm Repo and then let the `Subscrition` to specify one or more Helm Charts to be deployed and managed by MCM | [Pattern #2](#pattern-2-helm-repo)  |
+| 3 | ObjectBucket | `ObjectBucket` might be another common way to embrace GitOps experience: we can point the `Channel` to a S3-compliant bucket, the manifest files in this bucket will be deployed and managed by MCM | [Pattern #3](#pattern-3-object-bucket)  |
+| 4 | GitHub | GitHub repo is common to be used to store Kubernetes resources YAML files and unpackaged Helm charts. Once the `Channel` points to such a `GitHub` repo, the objects will be deployed and managed by MCM | [Pattern #4](#pattern-4-github-repo)  |
+
 
 ### Pattern #1: Namespace
 
