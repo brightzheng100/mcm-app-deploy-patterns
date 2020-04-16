@@ -22,6 +22,11 @@ Then we need to do two simple things:
 
 1. To create two namespaces: `app-entitlement` and `app-project`;
 
+```sh
+$ oc create ns app-entitlement
+$ oc create ns app-project
+```
+
 2. To create necessary `ImagePolicy` for the images.
 
 ```sh
