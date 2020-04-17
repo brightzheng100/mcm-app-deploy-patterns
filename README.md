@@ -211,19 +211,20 @@ In Hub Cluster:
 
 ```sh
 $ oc create secret generic object-bucket-secret \
-    --from-literal=AccessKeyID='<THE ACCESSKEY>' \          # CHANGE ME!!
-    --from-literal=SecretAccessKey='<THE SECRETKEY>'        # CHANGE ME!!
+    --from-literal=AccessKeyID='<THE ACCESSKEY>' \              # CHANGE ME!!
+    --from-literal=SecretAccessKey='<THE SECRETKEY>'            # CHANGE ME!!
 
-$ MINIO_URL='http:\/\/your.minio.url\/bucket-name'          # CHANGE ME!!
+$ OBJECT_BUCKET_URL='http:\/\/your.minio.url\/bucket-name'      # CHANGE ME!!
 $ cat 3-object-bucket/1-channel.yaml | \
-    sed "s/<EXPOSED MINIO URL>/$MINIO_URL/g" | \
+    sed "s/<EXPOSED MINIO URL>/$OBJECT_BUCKET_URL/g" | \
     oc apply -f -
 ```
 
 > Note: 
-> 1. The MINIO_URL pattern must be `<HTTP/HTTPS>://<URI>/<BUCKET>`,for example: http://my-minio.example.com/my-bucket;
-> 2. As here we're using `sed` to replace the content, we have to escape the special char `\`.
+> 1. The OBJECT_BUCKET_URL pattern must be `<HTTP/HTTPS>://<DOMAIN>/<BUCKET>`. For example: http://my-minio.example.com/my-bucket;
+> 2. As here we're using `sed` to replace the content, we have to escape the special char `/`.
 > 3. For those who are using IBM Cloud Object Storage service, you may enable the [HMAC Credential](https://cloud.ibm.com/docs/cloud-object-storage?topic=cloud-object-storage-uhc-hmac-credentials-main) to create such a key pair and create the secret accordingly.
+
 
 > OUTPUT:
 
@@ -273,7 +274,8 @@ deployment.extensions/nginx   1/1     1            1           2m3s
 
 NAME                         READY   STATUS    RESTARTS   AGE
 pod/nginx-78646cb555-cb6m8   1/1     Running   0          2m3s
-➜  argoCD kubectl get deploy,pod -n default
+
+$ kubectl get deploy,pod -n default
 NAME                          READY   UP-TO-DATE   AVAILABLE   AGE
 deployment.extensions/nginx   1/1     1            1           2m57s
 
@@ -284,6 +286,7 @@ pod/nginx-78646cb555-cb6m8   1/1     Running   0          2m57s
 ### Pattern #4: GitHub Repo
 
 TODO
+
 
 ## Annex
 
