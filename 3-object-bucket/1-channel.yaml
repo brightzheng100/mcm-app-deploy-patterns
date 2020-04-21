@@ -10,6 +10,6 @@ metadata:
     catagory: webapp
 spec:
   type: ObjectBucket
-  pathname: "<EXPOSED MINIO URL>"
+  pathname: "<EXPOSED-OBJECT-BUCKET-URL>"
   secretRef:
     name: object-bucket-secret

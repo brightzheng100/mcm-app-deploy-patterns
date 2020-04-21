@@ -216,7 +216,7 @@ $ oc create secret generic object-bucket-secret \
 
 $ OBJECT_BUCKET_URL='http:\/\/your.minio.url\/bucket-name'      # CHANGE ME!!
 $ cat 3-object-bucket/1-channel.yaml | \
-    sed "s/<EXPOSED MINIO URL>/$OBJECT_BUCKET_URL/g" | \
+    sed "s/<EXPOSED-OBJECT-BUCKET-URL>/$OBJECT_BUCKET_URL/g" | \
     oc apply -f -
 ```
 
@@ -304,7 +304,7 @@ $ oc create sa $MINIO_HELM_CHART_NAME
 
 # To grant permission for the sa MinIO uses
 $ oc adm policy add-scc-to-user anyuid system:serviceaccount:$MINIO_NANESPACE:my-minio
-# This might be optional if my PR (https://github.com/helm/charts/pull/21907) is accepted
+# This shouldn't need any more as my PR (https://github.com/helm/charts/pull/21907) has been merged
 $ oc adm policy add-scc-to-user anyuid system:serviceaccount:$MINIO_NANESPACE:default
 
 $ helm install --name $MINIO_HELM_CHART_NAME stable/minio --tls \
