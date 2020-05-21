@@ -128,15 +128,52 @@ app-modresort-deployment-6b9d78cc7c-l5cf2   1/1     Running   0          58s
 
 The goal of this demo is to deploy a Helm Chart from a Helm Repo to the managed cluster(s).
 
-There are two examples:
-1. The Channel points to "offical" [Kubernetes Charts repo](https://kubernetes-charts.storage.googleapis.com/) and Subscription looks for `phpmyadmin` Chart as target to deploy;
-2. Another Channel points to a [custom Chart Repo](https://github.com/IBM/helm101) and Subscription looks for `guestbook` Chart as target to deploy.
+There are 3 examples available under `2-helm-repo` folder:
 
-> Note: 
-> 1. The model of these two examples is identical;
-> 2. The following process covers the first example but you can try another.
+**1. The `phpmyadmin` Chart**
+
+- 2-helm-repo/1-channel.yaml
+- 2-helm-repo/2-subscription.yaml
+
+The `Channel` points to the **offical** [Kubernetes Charts repo](https://kubernetes-charts.storage.googleapis.com/) and `Subscription` looks for `phpmyadmin` Chart as target to deploy.
+
+
+**2. The `guestbook` Chart**
+
+- 2-helm-repo/a-channel.yaml
+- 2-helm-repo/b-subscription.yaml
+
+The `Channel` points to a [custom Chart repo](https://github.com/IBM/helm101) and `Subscription` looks for `guestbook` Chart as target to deploy.
+
+**3. The `bookinfo` Chart**
+
+- 2-helm-repo/x-channel.yaml
+- 2-helm-repo/y-subscription.yaml
+
+The `Channel` points to another [custom Chart repo](https://raw.githubusercontent.com/dymaczew/charts/master/repo/incubator/) and `Subscription` looks for the famous `bookinfo` example originated from Istio as target to deploy.
+Kudos to @dymaczew who has made them instumented with ICAM's [runtime data collectors](https://www.ibm.com/support/knowledgecenter/en/SSFC4F_1.3.0/icam/dc_runtime_intro.html) so you can get the 4 golden sigals staightaway!
+Do remember to follow the doc [here](https://www.ibm.com/support/knowledgecenter/en/SSFC4F_1.3.0/icam/dc_config_server_info.html) to download the configuration file named `ibm-cloud-apm-dc-configpack.tar` from ICAM and then prepare the secret in the managed cluster(s).
+
+```sh
+# The file `ibm-cloud-apm-dc-configpack.tar` is downloaded from ICAM
+$ tar xvf ibm-cloud-apm-dc-configpack.tar
+$ cd ibm-cloud-apm-dc-configpack
+
+# Create the secret in the namespace where the app will be deployed
+# so that the runtime data collectors can talk to ICAM for 4 golden signals
+$ kubectl create secret generic icam-server-secret -n default \
+--from-file=keyfiles/keyfile.jks \
+--from-file=keyfiles/keyfile.p12 \
+--from-file=keyfiles/keyfile.kdb \
+--from-file=keyfiles/ca.pem \
+--from-file=keyfiles/cert.pem \
+--from-file=keyfiles/key.pem \
+--from-file=global.environment
+``` 
 
 #### Channel
+
+> The following process covers the first example but you can try anyone you want.
 
 In Hub Cluster:
 
