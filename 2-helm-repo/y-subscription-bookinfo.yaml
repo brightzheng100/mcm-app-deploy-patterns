@@ -1,0 +1,96 @@
+---
+apiVersion: app.ibm.com/v1alpha1
+kind: Subscription
+metadata:
+  name: bookinfo
+  namespace: app-project
+  labels:
+    app: bookinfo
+    team: team1
+    catagory: webapp
+spec:
+  channel: app-entitlement/bookinfo-charts
+  name: bookinfo      # The name of the helm chart from the repo
+  packageFilter:
+    version: 1.1.0
+  placement:
+    placementRef:
+      name: bookinfo-prod
+      kind: PlacementRule
+  overrides:
+  - clusterName: "/"
+    clusterOverrides:
+    - path: "metadata.namespace"
+      value: default  # Change to the desired namespace if you want but remember to create it first
+  packageOverrides:
+  - packageName: bookinfo
+    packageOverrides:
+    - path: spec.values
+      value: |
+        ingress:
+          enabled: false                # change it to true to enable it 
+          host: bookinfo.mydomain.com   # with the right "host" info here
+        details:
+          replicaCount: 1
+        reviews:
+          replicaCount: 1
+        ratings:
+          replicaCount: 1
+        productpage:
+          replicaCount: 1
+        mysqldb:
+          replicaCount: 1
+
+---
+apiVersion: app.k8s.io/v1beta1
+kind: Application
+metadata:
+  name: bookinfo
+  namespace: app-project
+spec:
+  selector:
+    matchLabels:
+      app: bookinfo
+      team: team1
+      catagory: webapp
+  componentKinds:
+  - group: app.ibm.com/v1alpha1
+    kind: Subscription
+
+---
+# PlacementRule for DEV
+apiVersion: app.ibm.com/v1alpha1
+kind: PlacementRule
+metadata:
+  name: bookinfo-dev
+  namespace: app-project
+  generation: 1
+  labels:
+    app: bookinfo
+    team: team1
+    catagory: webapp
+spec:
+  clusterReplicas: 1
+  clusterLabels:
+    matchLabels:
+      cluster: managed-app-cluster
+      environment: DEV
+
+---
+# PlacementRule for PROD
+apiVersion: app.ibm.com/v1alpha1
+kind: PlacementRule
+metadata:
+  name: bookinfo-prod
+  namespace: app-project
+  generation: 1
+  labels:
+    app: bookinfo
+    team: team1
+    catagory: webapp
+spec:
+  clusterReplicas: 1
+  clusterLabels:
+    matchLabels:
+      cluster: managed-app-cluster
+      environment: PROD
