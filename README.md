@@ -23,18 +23,16 @@ Then we need to do two simple things:
 1. To create two namespaces: `app-entitlement` and `app-project`;
 
 ```sh
-$ oc create ns app-entitlement
-$ oc create ns app-entitlement
+$ oc apply -f 0-preparation/1-namespace.yaml
 ```
 
 2. To create necessary `ImagePolicy` for the images.
 
 ```sh
-$ oc apply -f 0-preparation/1-namespace.yaml
 $ oc apply -f 0-preparation/2-imagepolicy.yaml
 ```
 
-> Note: the `ImagePolicy` here is really to allow almost every image, please review it while trying in production.
+> Note: the `ImagePolicy` here is really to allow almost every image, please review it while trying in production. If there is no `ImagePolicy` CRD in your env, it's fine to ignore.
 
 > OUTPUT:
 
@@ -147,8 +145,8 @@ The `Channel` points to a [custom Chart repo](https://github.com/IBM/helm101) an
 
 **3. The `bookinfo` Chart**
 
-- 2-helm-repo/x-channel.yaml
-- 2-helm-repo/y-subscription.yaml
+- 2-helm-repo/x-channel-bookinfo.yaml
+- 2-helm-repo/y-subscription-bookinfo.yaml
 
 The `Channel` points to another [custom Chart repo](https://raw.githubusercontent.com/dymaczew/charts/master/repo/incubator/) and `Subscription` looks for the famous `bookinfo` example originated from Istio as target to deploy.
 Kudos to @dymaczew who has made them instumented with ICAM's [runtime data collectors](https://www.ibm.com/support/knowledgecenter/en/SSFC4F_1.3.0/icam/dc_runtime_intro.html) so you can get the 4 golden sigals staightaway!
@@ -161,6 +159,7 @@ $ cd ibm-cloud-apm-dc-configpack
 
 # Create the secret in the namespace where the app will be deployed
 # so that the runtime data collectors can talk to ICAM for 4 golden signals
+# here we use the default namespace, but feel free to change to your desired one
 $ kubectl create secret generic icam-server-secret -n default \
 --from-file=keyfiles/keyfile.jks \
 --from-file=keyfiles/keyfile.p12 \
